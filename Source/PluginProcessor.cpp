@@ -345,11 +345,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout GhostlineAudioProcessor::cre
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    // Delay Time: 0.01 to 1.0 seconds, default 0.3
+    // Delay Time: 0.01 to 2.0 seconds, default 0.4
     params.push_back (std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID ("DELAYTIME", 1), "Delay Time",
-        juce::NormalisableRange<float> (0.01f, 1.0f, 0.01f, 0.3f),
-        0.3f, "s"
+        juce::NormalisableRange<float> (0.01f, 2.0f, 0.001f, 0.3f),
+        0.4f, "s"
     ));
 
     // Feedback: 0.0 to 0.95, default 0.3
@@ -380,11 +380,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout GhostlineAudioProcessor::cre
         0.5f
     ));
 
-    // Modulation Depth: 0.0 to 1.0, default 0.0
+    // Modulation Depth: 0.0 to 1.0, default 0.3
     params.push_back (std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID ("MODDEPTH", 1), "Modulation Depth",
         juce::NormalisableRange<float> (0.0f, 1.0f, 0.01f),
-        0.0f
+        0.3f
     ));
 
     return { params.begin(), params.end() };

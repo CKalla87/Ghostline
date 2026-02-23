@@ -15,6 +15,24 @@
       <FILE id="SoUkjD" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="uzM97Y" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="GhLf01" name="GhostLineLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/GhostLineLookAndFeel.cpp"/>
+      <FILE id="GhLf02" name="GhostLineLookAndFeel.h" compile="0" resource="0"
+            file="Source/GhostLineLookAndFeel.h"/>
+      <FILE id="MkC001" name="ModernKnobComponent.cpp" compile="1" resource="0"
+            file="Source/ModernKnobComponent.cpp"/>
+      <FILE id="MkC002" name="ModernKnobComponent.h" compile="0" resource="0"
+            file="Source/ModernKnobComponent.h"/>
+      <FILE id="SpD001" name="SpectrumDisplayComponent.cpp" compile="1" resource="0"
+            file="Source/SpectrumDisplayComponent.cpp"/>
+      <FILE id="SpD002" name="SpectrumDisplayComponent.h" compile="0" resource="0"
+            file="Source/SpectrumDisplayComponent.h"/>
+      <FILE id="PwB001" name="PowerButton.cpp" compile="1" resource="0"
+            file="Source/PowerButton.cpp"/>
+      <FILE id="PwB002" name="PowerButton.h" compile="0" resource="0"
+            file="Source/PowerButton.h"/>
+      <FILE id="PwB003" name="power_button_on.png" compile="0" resource="1"
+            file="Resources/power_button_on.png"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
