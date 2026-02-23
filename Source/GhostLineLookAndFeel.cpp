@@ -91,17 +91,12 @@ void GhostLineLookAndFeel::drawRotarySlider (juce::Graphics& g,
     g.drawEllipse (centre.x - faceRadius, centre.y - faceRadius,
                    faceRadius * 2.0f, faceRadius * 2.0f, 1.0f);
 
-    // 6) Needle - points to progressAngle (same angle as arc end)
+    // 6) Needle - use same Point::getPointOnCircumference as addCentredArc for exact match
     // At norm==0: progressAngle==startAngle, needle at far-left bottom
     // At norm==1: progressAngle==endAngle, needle at far-right bottom
-    float needleRadius = juce::jmin (bounds.getWidth(), bounds.getHeight()) * 0.42f;
-    float inner = needleRadius * 0.15f;
-    float outer = needleRadius * 0.95f;
-
-    juce::Point<float> p1 (centre.x + std::cos (progressAngle) * inner,
-                           centre.y + std::sin (progressAngle) * inner);
-    juce::Point<float> p2 (centre.x + std::cos (progressAngle) * outer,
-                           centre.y + std::sin (progressAngle) * outer);
+    float needleInner = radius * 0.15f;
+    juce::Point<float> p1 = centre.getPointOnCircumference (needleInner, needleInner, progressAngle);
+    juce::Point<float> p2 = centre.getPointOnCircumference (radius, radius, progressAngle);
 
     // Needle glow
     g.setColour (themeColour.withAlpha (0.5f));

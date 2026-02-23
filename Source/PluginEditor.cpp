@@ -15,8 +15,10 @@ GhostlineAudioProcessorEditor::GhostlineAudioProcessorEditor (GhostlineAudioProc
 {
     setBufferedToImage (true);
 
-    // Power button
+    // Power button - connected to POWER parameter (bypass when off)
     addAndMakeVisible (powerButton);
+    powerAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
+        audioProcessor.apvts, "POWER", powerButton);
 
     // Spectrum display
     addAndMakeVisible (spectrumDisplay);
@@ -86,6 +88,7 @@ GhostlineAudioProcessorEditor::GhostlineAudioProcessorEditor (GhostlineAudioProc
 GhostlineAudioProcessorEditor::~GhostlineAudioProcessorEditor()
 {
     // Detach from processor before components are destroyed (reduces callback races on teardown)
+    powerAttachment.reset();
     delayTimeAttachment.reset();
     feedbackAttachment.reset();
     wetAttachment.reset();

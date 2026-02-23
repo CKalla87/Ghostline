@@ -49,6 +49,7 @@ private:
     std::array<ModernKnobComponent*, 6> knobs {};
     ModernKnobComponent delayTimeKnob, feedbackKnob, wetKnob, dryKnob, modRateKnob, modDepthKnob;
 
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> powerAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> delayTimeAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> feedbackAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> wetAttachment;

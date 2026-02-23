@@ -19,6 +19,8 @@ PowerButton::PowerButton()
 
     buttonImageOn = juce::ImageCache::getFromMemory (BinaryData::power_button_on_png,
                                                      BinaryData::power_button_on_pngSize);
+    buttonImageOff = juce::ImageCache::getFromMemory (BinaryData::power_button_off_png,
+                                                      BinaryData::power_button_off_pngSize);
 }
 
 void PowerButton::paintButton (juce::Graphics& g, bool hovered, bool pressed)
@@ -30,28 +32,15 @@ void PowerButton::paintButton (juce::Graphics& g, bool hovered, bool pressed)
     clipPath.addRoundedRectangle (bounds, cornerRadius);
     g.reduceClipRegion (clipPath);
 
-    if (! buttonImageOn.isValid())
+    juce::Image& img = isOn ? buttonImageOn : buttonImageOff;
+    if (! img.isValid())
     {
         g.setColour (isOn ? juce::Colour (0xff1e3a8a) : juce::Colour (0xff1e293b));
         g.fillRoundedRectangle (bounds, cornerRadius);
         return;
     }
 
-    if (isOn)
-    {
-        float alpha = pressed ? 0.85f : 1.0f;
-        g.setOpacity (alpha);
-        g.drawImage (buttonImageOn, bounds, juce::RectanglePlacement::centred | juce::RectanglePlacement::fillDestination);
-    }
-    else
-    {
-        // OFF state: solid dark background first (no transparency bleed)
-        g.setOpacity (1.0f);
-        g.setColour (juce::Colour (0xff1e293b));
-        g.fillRoundedRectangle (bounds, cornerRadius);
-
-        // Draw dimmed image on top
-        g.setOpacity (0.5f);
-        g.drawImage (buttonImageOn, bounds, juce::RectanglePlacement::centred | juce::RectanglePlacement::fillDestination);
-    }
+    float alpha = pressed ? 0.85f : 1.0f;
+    g.setOpacity (alpha);
+    g.drawImage (img, bounds, juce::RectanglePlacement::centred | juce::RectanglePlacement::fillDestination);
 }

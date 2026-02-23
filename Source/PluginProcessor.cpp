@@ -24,6 +24,7 @@ GhostlineAudioProcessor::GhostlineAudioProcessor()
 #endif
 {
     // Get parameter pointers
+    powerParam = apvts.getRawParameterValue("POWER");
     delayTimeParam = apvts.getRawParameterValue("DELAYTIME");
     feedbackParam = apvts.getRawParameterValue("FEEDBACK");
     wetLevelParam = apvts.getRawParameterValue("WET");
@@ -175,6 +176,10 @@ void GhostlineAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+
+    // Power off: bypass effect (pass through - buffer already contains input)
+    if (powerParam != nullptr && powerParam->load() < 0.5f)
+        return;
 
     // Safety check - ensure delay buffers are initialized
     if (delayBuffer.size() < 2 || delayBuffer[0].size() == 0 || delayBuffer[1].size() == 0)
@@ -344,6 +349,12 @@ void GhostlineAudioProcessor::updateParameters()
 juce::AudioProcessorValueTreeState::ParameterLayout GhostlineAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+    // Power: on/off, default on
+    params.push_back (std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID ("POWER", 1), "Power",
+        true
+    ));
 
     // Delay Time: 0.01 to 2.0 seconds, default 0.4
     params.push_back (std::make_unique<juce::AudioParameterFloat>(

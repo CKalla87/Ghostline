@@ -61,7 +61,8 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
-    // Delay parameters
+    // Parameters
+    std::atomic<float>* powerParam = nullptr;
     std::atomic<float>* delayTimeParam = nullptr;
     std::atomic<float>* feedbackParam = nullptr;
     std::atomic<float>* wetLevelParam = nullptr;

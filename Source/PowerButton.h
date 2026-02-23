@@ -22,6 +22,7 @@ public:
 
 private:
     juce::Image buttonImageOn;
+    juce::Image buttonImageOff;
     static constexpr float cornerRadius = 16.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PowerButton)
