@@ -42,6 +42,11 @@ GhostlineAudioProcessor::GhostlineAudioProcessor()
         smoothedDelayTime[ch].reset(44100.0, 0.05); // 50ms ramp time
         smoothedDelayTime[ch].setCurrentAndTargetValue(cachedDelayTime);
     }
+
+    // Spectrum analysis FIFO and buffers
+    fftFifo.resize(fftSize, 0.0f);
+    for (auto& buf : fftBlockBuffers)
+        buf.resize(fftSize, 0.0f);
 }
 
 GhostlineAudioProcessor::~GhostlineAudioProcessor()
@@ -179,7 +184,20 @@ void GhostlineAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
 
     // Power off: bypass effect (pass through - buffer already contains input)
     if (powerParam != nullptr && powerParam->load() < 0.5f)
+    {
+        // Still push input for spectrum display when bypassed
+        if (totalNumInputChannels >= 1)
+        {
+            for (int i = 0; i < buffer.getNumSamples(); ++i)
+            {
+                float mono = (totalNumInputChannels > 1)
+                    ? (buffer.getSample(0, i) + buffer.getSample(1, i)) * 0.5f
+                    : buffer.getSample(0, i);
+                pushSamplesForSpectrum(&mono, 1);
+            }
+        }
         return;
+    }
 
     // Safety check - ensure delay buffers are initialized
     if (delayBuffer.size() < 2 || delayBuffer[0].size() == 0 || delayBuffer[1].size() == 0)
@@ -256,6 +274,18 @@ void GhostlineAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
             writePosition[channel] = (writePosition[channel] + 1) % delayBufferSize;
             
             channelData[sample] = output;
+        }
+    }
+
+    // Push output audio for spectrum display (mono mix)
+    if (totalNumInputChannels >= 1)
+    {
+        for (int i = 0; i < numSamples; ++i)
+        {
+            float mono = (totalNumInputChannels > 1)
+                ? (buffer.getSample(0, i) + buffer.getSample(1, i)) * 0.5f
+                : buffer.getSample(0, i);
+            pushSamplesForSpectrum(&mono, 1);
         }
     }
 }
@@ -399,6 +429,39 @@ juce::AudioProcessorValueTreeState::ParameterLayout GhostlineAudioProcessor::cre
     ));
 
     return { params.begin(), params.end() };
+}
+
+//==============================================================================
+void GhostlineAudioProcessor::pushSamplesForSpectrum (const float* samples, int numSamples)
+{
+    if (fftFifo.empty())
+        return;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        fftFifo[fftFifoIndex++] = samples[i];
+        if (fftFifoIndex >= fftSize)
+        {
+            fftFifoIndex = 0;
+            const int writeBlock = (readyBlockIndex.load() == 0) ? 1 : 0;
+            juce::ScopedLock sl (fftBlockLock);
+            for (int j = 0; j < fftSize; ++j)
+                fftBlockBuffers[writeBlock][j] = fftFifo[j];
+            readyBlockIndex.store (writeBlock);
+        }
+    }
+}
+
+bool GhostlineAudioProcessor::pullNextFftBlock (float* dest, int destSize)
+{
+    const int ready = readyBlockIndex.exchange (-1);
+    if (ready < 0 || destSize < fftSize)
+        return false;
+
+    juce::ScopedLock sl (fftBlockLock);
+    for (int i = 0; i < fftSize && i < destSize; ++i)
+        dest[i] = fftBlockBuffers[static_cast<size_t>(ready)][i];
+    return true;
 }
 
 //==============================================================================

@@ -56,6 +56,9 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    /** Called from editor on message thread - pulls next ready FFT block if available. */
+    bool pullNextFftBlock (float* dest, int destSize);
+
     //==============================================================================
     // Parameter management
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -98,6 +101,20 @@ private:
     
     // Smoothed delay time to prevent clicks when changing delay time
     juce::SmoothedValue<float> smoothedDelayTime[2];
+
+    //==============================================================================
+    // Spectrum analysis - audio thread pushes, editor pulls for display
+    static constexpr int fftOrder = 11;
+    static constexpr int fftSize = 1 << fftOrder;
+    static constexpr int scopeSize = 512;
+
+    std::vector<float> fftFifo;
+    int fftFifoIndex = 0;
+    std::array<std::vector<float>, 2> fftBlockBuffers;
+    std::atomic<int> readyBlockIndex {-1};
+    juce::CriticalSection fftBlockLock;
+
+    void pushSamplesForSpectrum (const float* samples, int numSamples);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GhostlineAudioProcessor)
 };

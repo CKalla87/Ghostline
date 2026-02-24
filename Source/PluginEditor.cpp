@@ -11,7 +11,7 @@
 
 //==============================================================================
 GhostlineAudioProcessorEditor::GhostlineAudioProcessorEditor (GhostlineAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p), spectrumDisplay (p)
 {
     setBufferedToImage (true);
 
